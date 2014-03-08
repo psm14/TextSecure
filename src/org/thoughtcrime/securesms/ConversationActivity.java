@@ -782,9 +782,16 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
     if (!getIntent().hasExtra(RECIPIENTS_EXTRA) || getIntent().getStringExtra(RECIPIENTS_EXTRA).equals("")) {
         SharedPreferences preferences = getSharedPreferences(CONVERSATION_PREFS, Context.MODE_PRIVATE);
         Intent intent = new Intent(this, ConversationActivity.class);
-        intent.putExtra(RECIPIENTS_EXTRA, preferences.getString(RECIPIENTS_EXTRA, ""));
-        intent.putExtra(THREAD_ID_EXTRA,  preferences.getLong(THREAD_ID_EXTRA, -1));
-        intent.putExtra(DISTRIBUTION_TYPE_EXTRA, preferences.getInt(DISTRIBUTION_TYPE_EXTRA, ThreadDatabase.DistributionTypes.DEFAULT));
+        long threadId = preferences.getLong(THREAD_ID_EXTRA, -1);
+        if (threadId == -1) {
+            intent.putExtra(RECIPIENTS_EXTRA, "");
+            intent.putExtra(THREAD_ID_EXTRA,  -1);
+            intent.putExtra(DISTRIBUTION_TYPE_EXTRA, ThreadDatabase.DistributionTypes.DEFAULT);
+        } else {
+            intent.putExtra(RECIPIENTS_EXTRA, preferences.getString(RECIPIENTS_EXTRA, ""));
+            intent.putExtra(THREAD_ID_EXTRA,  preferences.getLong(THREAD_ID_EXTRA, -1));
+            intent.putExtra(DISTRIBUTION_TYPE_EXTRA, preferences.getInt(DISTRIBUTION_TYPE_EXTRA, ThreadDatabase.DistributionTypes.DEFAULT));
+        }
         intent.putExtra(MASTER_SECRET_EXTRA, getIntent().getParcelableExtra(MASTER_SECRET_EXTRA));
         setIntent(intent);
     }
@@ -797,9 +804,8 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
 
     // TODO: This stuff shouldn't be in here
     if (this.recipientsPanel != null) {
-        if (this.threadId != -1) {
-            this.recipientsPanel.setVisibility(View.GONE);
-        } else {
+        this.recipientsPanel.disable();
+        if (this.threadId == -1) {
             this.recipientsPanel.setVisibility(View.VISIBLE);
         }
     }
