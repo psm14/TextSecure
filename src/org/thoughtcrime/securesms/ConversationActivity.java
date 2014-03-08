@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -146,6 +147,8 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
   public static final String DRAFT_VIDEO_EXTRA       = "draft_video";
   public static final String DISTRIBUTION_TYPE_EXTRA = "distribution_type";
 
+  private static final String CONVERSATION_PREFS     = "ConversationState";
+
   private static final int PICK_CONTACT      = 1;
   private static final int PICK_IMAGE        = 2;
   private static final int PICK_VIDEO        = 3;
@@ -173,7 +176,7 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
   private EmojiToggle                   emojiToggle;
 
   private Recipients recipients;
-  private long       threadId;
+  private long       threadId = -1;
   private int        distributionType;
   private boolean    isEncryptedConversation;
   private boolean    isAuthenticatedConversation;
@@ -257,6 +260,13 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
 
   @Override
   protected void onDestroy() {
+    getSharedPreferences(CONVERSATION_PREFS, Context.MODE_PRIVATE)
+            .edit()
+            .putString(RECIPIENTS_EXTRA, recipients.toIdString())
+            .putLong(THREAD_ID_EXTRA, threadId)
+            .putInt(DISTRIBUTION_TYPE_EXTRA, distributionType)
+            .commit();
+
     unregisterReceiver(securityUpdateReceiver);
     unregisterReceiver(groupUpdateReceiver);
     saveDraft();
@@ -403,11 +413,11 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
   //////// Event Handlers
 
   private void handleReturnToConversationList() {
-    Intent intent = new Intent(this, ConversationListActivity.class);
+    /*Intent intent = new Intent(this, ConversationListActivity.class);
     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     intent.putExtra("master_secret", masterSecret);
     startActivity(intent);
-    finish();
+    finish();*/
   }
 
   private void handleVerifyIdentity() {
@@ -769,10 +779,31 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
   }
 
   private void initializeConversationState() {
-    recipients          = RecipientFactory.getRecipientsForIds(this, getIntent().getStringExtra(RECIPIENTS_EXTRA), true);
-    threadId            = getIntent().getLongExtra(THREAD_ID_EXTRA, -1);
-    distributionType    = getIntent().getIntExtra(DISTRIBUTION_TYPE_EXTRA,
+    if (threadId == -1 && !getIntent().hasExtra(THREAD_ID_EXTRA)) {
+        SharedPreferences preferences = getSharedPreferences(CONVERSATION_PREFS, Context.MODE_PRIVATE);
+        Intent intent = new Intent(this, ConversationActivity.class);
+        intent.putExtra(RECIPIENTS_EXTRA, preferences.getString(RECIPIENTS_EXTRA, ""));
+        intent.putExtra(THREAD_ID_EXTRA,  preferences.getLong(THREAD_ID_EXTRA, -1));
+        intent.putExtra(DISTRIBUTION_TYPE_EXTRA, preferences.getInt(DISTRIBUTION_TYPE_EXTRA, ThreadDatabase.DistributionTypes.DEFAULT));
+        intent.putExtra(MASTER_SECRET_EXTRA, getIntent().getParcelableExtra(MASTER_SECRET_EXTRA));
+        setIntent(intent);
+    }
+
+    Intent intent       = getIntent();
+    recipients          = RecipientFactory.getRecipientsForIds(this, intent.getStringExtra(RECIPIENTS_EXTRA), true);
+    threadId            = intent.getLongExtra(THREAD_ID_EXTRA, -1);
+    distributionType    = intent.getIntExtra(DISTRIBUTION_TYPE_EXTRA,
             ThreadDatabase.DistributionTypes.DEFAULT);
+
+    // TODO: This stuff shouldn't be in here
+    if (this.recipientsPanel != null) {
+        if (this.threadId != -1) {
+            this.recipientsPanel.setVisibility(View.GONE);
+        } else {
+            this.recipientsPanel.setVisibility(View.VISIBLE);
+        }
+    }
+
     masterSecret        = getIntent().getParcelableExtra(MASTER_SECRET_EXTRA);
   }
 

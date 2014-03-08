@@ -149,7 +149,9 @@ public class DatabaseMigrationActivity extends PassphraseRequiredSherlockActivit
       if (getIntent().hasExtra("next_intent")) {
         startActivity((Intent)getIntent().getParcelableExtra("next_intent"));
       } else {
-        startActivity(new Intent(this, ConversationListActivity.class));
+        Intent intent = new Intent(this, ConversationActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
       }
     }
 

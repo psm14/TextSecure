@@ -93,7 +93,8 @@ public class ImportFragment extends SherlockFragment {
         intent.putExtra("master_secret", masterSecret);
         getActivity().startService(intent);
 
-        Intent nextIntent = new Intent(getActivity(), ConversationListActivity.class);
+        Intent nextIntent = new Intent(getActivity(), ConversationActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intent.putExtra("master_secret", masterSecret);
 
         Intent activityIntent = new Intent(getActivity(), DatabaseMigrationActivity.class);
