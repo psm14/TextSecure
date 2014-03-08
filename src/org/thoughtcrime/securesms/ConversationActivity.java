@@ -1245,7 +1245,7 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
     intent.putExtra(ConversationActivity.DISTRIBUTION_TYPE_EXTRA, distributionType);
     intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-    onNewIntent(intent);
+    startActivity(intent);
   }
 
     // Listeners

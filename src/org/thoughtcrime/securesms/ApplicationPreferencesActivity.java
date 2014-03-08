@@ -217,7 +217,7 @@ public class ApplicationPreferencesActivity extends PassphraseRequiredSherlockPr
     switch (item.getItemId()) {
     case android.R.id.home:
       Intent intent = new Intent(this, ConversationActivity.class);
-      intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+      intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
       startActivity(intent);
       finish();
       return true;

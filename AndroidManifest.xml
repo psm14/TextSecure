@@ -95,6 +95,7 @@
 
         <activity android:name=".ConversationActivity"
               android:windowSoftInputMode="stateUnchanged"
+              android:launchMode="singleTop"
               android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"/>
 
     <activity android:name=".GroupCreateActivity"

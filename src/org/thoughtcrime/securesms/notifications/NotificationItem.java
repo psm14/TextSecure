@@ -71,7 +71,7 @@ public class NotificationItem {
 
   public PendingIntent getPendingIntent(Context context) {
     Intent intent = new Intent(context, RoutingActivity.class);
-    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
     if (recipients != null || threadRecipients != null) {
       if (threadRecipients != null) intent.putExtra("recipients", threadRecipients);

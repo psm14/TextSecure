@@ -80,7 +80,7 @@ public class MessageNotifier {
       sendInThreadNotification(context);
     } else {
       Intent intent = new Intent(context, RoutingActivity.class);
-      intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+      intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
       intent.putExtra("recipients", recipients);
       intent.putExtra("thread_id", threadId);
       intent.setData((Uri.parse("custom://"+System.currentTimeMillis())));
