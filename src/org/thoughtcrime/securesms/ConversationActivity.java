@@ -179,6 +179,7 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
   private boolean    isAuthenticatedConversation;
   private boolean    isMmsEnabled = true;
   private boolean    isCharactersLeftViewEnabled;
+  private StandardShortcuts   shortcuts;
 
   private CharacterCalculator characterCalculator = new CharacterCalculator();
   private DynamicTheme        dynamicTheme        = new DynamicTheme();
@@ -349,23 +350,27 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     super.onOptionsItemSelected(item);
-    switch (item.getItemId()) {
-    case R.id.menu_call:                      handleDial(getRecipients().getPrimaryRecipient()); return true;
-    case R.id.menu_delete_thread:             handleDeleteThread();                              return true;
-    case R.id.menu_add_contact_info:          handleAddContactInfo();                            return true;
-    case R.id.menu_add_attachment:            handleAddAttachment();                             return true;
-    case R.id.menu_start_secure_session:      handleStartSecureSession();                        return true;
-    case R.id.menu_abort_session:             handleAbortSecureSession();                        return true;
-    case R.id.menu_verify_identity:           handleVerifyIdentity();                            return true;
-    case R.id.menu_group_recipients:          handleDisplayGroupRecipients();                    return true;
-    case R.id.menu_distribution_broadcast:    handleDistributionBroadcastEnabled(item);          return true;
-    case R.id.menu_distribution_conversation: handleDistributionConversationEnabled(item);       return true;
-    case R.id.menu_edit_group:                handleEditPushGroup();                             return true;
-    case R.id.menu_leave:                     handleLeavePushGroup();                            return true;
-    case android.R.id.home:                   handleReturnToConversationList();                  return true;
-    }
+    if (shortcuts.onOptionsItemSelected(item)) {
+        return true;
+    } else {
+        switch (item.getItemId()) {
+            case R.id.menu_call:                      handleDial(getRecipients().getPrimaryRecipient()); return true;
+            case R.id.menu_delete_thread:             handleDeleteThread();                              return true;
+            case R.id.menu_add_contact_info:          handleAddContactInfo();                            return true;
+            case R.id.menu_add_attachment:            handleAddAttachment();                             return true;
+            case R.id.menu_start_secure_session:      handleStartSecureSession();                        return true;
+            case R.id.menu_abort_session:             handleAbortSecureSession();                        return true;
+            case R.id.menu_verify_identity:           handleVerifyIdentity();                            return true;
+            case R.id.menu_group_recipients:          handleDisplayGroupRecipients();                    return true;
+            case R.id.menu_distribution_broadcast:    handleDistributionBroadcastEnabled(item);          return true;
+            case R.id.menu_distribution_conversation: handleDistributionConversationEnabled(item);       return true;
+            case R.id.menu_edit_group:                handleEditPushGroup();                             return true;
+            case R.id.menu_leave:                     handleLeavePushGroup();                            return true;
+            case android.R.id.home:                   handleReturnToConversationList();                  return true;
+        }
 
-    return false;
+        return false;
+    }
   }
 
   @Override
@@ -826,6 +831,8 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
         initializeTitleBar();
       }
     });
+
+    shortcuts = new StandardShortcuts(this, masterSecret);
 
     registerForContextMenu(sendButton);
 

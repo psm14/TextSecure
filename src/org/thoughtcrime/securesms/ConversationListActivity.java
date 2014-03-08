@@ -55,6 +55,7 @@ public class ConversationListActivity extends PassphraseRequiredSherlockFragment
   private DrawerLayout drawerLayout;
   private DrawerToggle drawerToggle;
   private ListView     drawerList;
+  private StandardShortcuts shortcuts;
 
   @Override
   public void onCreate(Bundle icicle) {
@@ -144,35 +145,19 @@ public class ConversationListActivity extends PassphraseRequiredSherlockFragment
   public boolean onOptionsItemSelected(MenuItem item) {
     super.onOptionsItemSelected(item);
 
-    int defaultType = ThreadDatabase.DistributionTypes.DEFAULT;
-
-    switch (item.getItemId()) {
-    case R.id.menu_new_message:       openSingleContactSelection();   return true;
-    case R.id.menu_new_group:         createGroup();                  return true;
-    case R.id.menu_settings:          handleDisplaySettings();        return true;
-    case R.id.menu_clear_passphrase:  handleClearPassphrase();        return true;
-    case R.id.menu_mark_all_read:     handleMarkAllRead();            return true;
-    case android.R.id.home:           handleNavigationDrawerToggle(); return true;
+    if (shortcuts.onOptionsItemSelected(item)) {
+        return true;
+    } else if (item.getItemId() == android.R.id.home) {
+        handleNavigationDrawerToggle();
+        return true;
+    } else {
+        return false;
     }
-
-    return false;
   }
 
   @Override
   public void onCreateConversation(long threadId, Recipients recipients, int distributionType) {
     createConversation(threadId, recipients, distributionType);
-  }
-
-  private void createGroup() {
-    Intent intent = new Intent(this, GroupCreateActivity.class);
-    intent.putExtra("master_secret", masterSecret);
-    startActivity(intent);
-  }
-
-  private void openSingleContactSelection() {
-    Intent intent = new Intent(this, SingleContactSelectionActivity.class);
-    intent.putExtra(SingleContactSelectionActivity.MASTER_SECRET_EXTRA, masterSecret);
-    startActivity(intent);
   }
 
   private void createConversation(long threadId, Recipients recipients, int distributionType) {
@@ -191,29 +176,6 @@ public class ConversationListActivity extends PassphraseRequiredSherlockFragment
     } else {
       drawerLayout.openDrawer(drawerList);
     }
-  }
-
-  private void handleDisplaySettings() {
-    Intent preferencesIntent = new Intent(this, ApplicationPreferencesActivity.class);
-    preferencesIntent.putExtra("master_secret", masterSecret);
-    startActivity(preferencesIntent);
-  }
-
-  private void handleClearPassphrase() {
-    Intent intent = new Intent(this, KeyCachingService.class);
-    intent.setAction(KeyCachingService.CLEAR_KEY_ACTION);
-    startService(intent);
-  }
-
-  private void handleMarkAllRead() {
-    new AsyncTask<Void, Void, Void>() {
-      @Override
-      protected Void doInBackground(Void... params) {
-        DatabaseFactory.getThreadDatabase(ConversationListActivity.this).setAllThreadsRead();
-        MessageNotifier.updateNotification(ConversationListActivity.this, masterSecret);
-        return null;
-      }
-    }.execute();
   }
 
   private void initializeNavigationDrawer() {
@@ -293,6 +255,9 @@ public class ConversationListActivity extends PassphraseRequiredSherlockFragment
         .findFragmentById(R.id.fragment_content);
 
     this.fragment.setMasterSecret(masterSecret);
+
+
+    this.shortcuts = new StandardShortcuts(this, masterSecret);
   }
 
   private void initializeDefaultMessengerCheck() {
