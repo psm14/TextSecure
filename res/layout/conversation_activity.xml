@@ -13,67 +13,82 @@ android:layout_height="match_parent">
         android:orientation="vertical">
 
         <org.thoughtcrime.securesms.components.RecipientsPanel
-                android:id="@+id/recipients"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone" />
+            android:id="@+id/recipients"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
 
         <RelativeLayout
-                android:id="@+id/layout_container"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="bottom">
+            android:id="@+id/layout_container"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="bottom">
 
-            <FrameLayout
-                android:id="@+id/fragment_holder"
+            <RelativeLayout
+                android:id="@+id/fragment_content"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_above="@+id/bottom_container"/>
 
-                <LinearLayout
-                        android:id="@+id/bottom_panel"
+            <LinearLayout
+                android:layout_alignParentBottom="true"
+                android:id="@id/bottom_container"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <ScrollView android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+                    <LinearLayout
+                        android:id="@+id/attachment_editor"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:background="?conversation_editor_background">
+                        android:visibility="gone">
 
-                    <org.thoughtcrime.securesms.components.EmojiToggle
-                            android:id="@+id/emoji_toggle"
+                        <ImageView
+                            android:id="@+id/attachment_thumbnail"
+                            android:layout_width="fill_parent"
+                            android:layout_height="150dip"
+                            android:layout_weight="1"
+                            android:contentDescription="Attachment Thumbnail"/>
+
+                        <LinearLayout
+                            android:orientation="vertical"
                             android:layout_width="wrap_content"
                             android:layout_height="fill_parent"
-                            android:layout_gravity="center_vertical"
-                            android:background="@drawable/emoji_toggle_background"
-                            android:padding="10dp"/>
+                            android:gravity="center_vertical">
 
-                    <EditText
-                            android:id="@+id/embedded_text_editor"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1.0"
-                            android:autoText="true"
-                            android:capitalize="sentences"
-                            android:background="#00ffffff"
-                            android:padding="12dp"
-                            android:paddingRight="0dp"
-                            android:hint="@string/conversation_activity__type_message"
-                            android:imeOptions="actionSend|flagNoEnterAction"
-                            android:inputType="textShortMessage|textAutoCorrect|textCapSentences|textMultiLine"
-                            android:maxLength="1000"
-                            android:maxLines="4"
-                            android:nextFocusRight="@+id/send_button"
-                            android:textColor="?conversation_editor_text_color" />
+                            <Button
+                                android:id="@+id/remove_image_button"
+                                style="?android:attr/buttonStyleSmall"
+                                android:layout_width="100dip"
+                                android:layout_height="50dip"
+                                android:text="@string/conversation_activity__remove" />
 
-                    <ImageButton
-                        android:id="@+id/send_button"
+                        </LinearLayout>
+                    </LinearLayout>
+                </ScrollView>
+
+                <LinearLayout
+                    android:id="@+id/bottom_panel"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="?conversation_editor_background">
+
+                    <org.thoughtcrime.securesms.components.EmojiToggle
+                        android:id="@+id/emoji_toggle"
                         android:layout_width="wrap_content"
                         android:layout_height="fill_parent"
                         android:layout_gravity="center_vertical"
                         android:background="@drawable/touch_highlight_background"
                         android:padding="10dp"/>
 
-                <EditText
+                    <EditText
                         android:id="@+id/embedded_text_editor"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -91,27 +106,37 @@ android:layout_height="match_parent">
                         android:nextFocusRight="@+id/send_button"
                         android:textColor="?conversation_editor_text_color" />
 
-                <ImageButton
-                    android:id="@+id/send_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="fill_parent"
-                    android:layout_gravity="center_vertical"
-                    android:background="@drawable/touch_highlight_background"
-                    android:contentDescription="@string/conversation_activity__send"
-                    android:nextFocusLeft="@+id/embedded_text_editor"
-                    android:padding="12dp"
-                    android:src="?conversation_send_button"
-                    android:clickable="false"
-                    android:enabled="false" />
+                    <ImageButton
+                        android:id="@+id/send_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_gravity="center_vertical"
+                        android:background="@drawable/touch_highlight_background"
+                        android:contentDescription="@string/conversation_activity__send"
+                        android:nextFocusLeft="@+id/embedded_text_editor"
+                        android:padding="12dp"
+                        android:src="?conversation_send_button"
+                        android:clickable="false"
+                        android:enabled="false" />
+
+                </LinearLayout>
+
+                <TextView android:id="@+id/space_left"
+                    android:paddingLeft="5dip"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:text="160/160 (1)" />
+
             </LinearLayout>
         </RelativeLayout>
 
         <org.thoughtcrime.securesms.components.EmojiDrawer
-                android:id="@+id/emoji_drawer"
-                android:visibility="gone"
-                android:layout_weight="1.1"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"/>
+            android:id="@+id/emoji_drawer"
+            android:visibility="gone"
+            android:layout_weight="1.1"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"/>
 
     </LinearLayout>
 

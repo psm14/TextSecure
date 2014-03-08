@@ -97,6 +97,10 @@ public class ConversationFragment extends SherlockListFragment
     return conversationItem.getMessageRecord();
   }
 
+  public long getThreadId() {
+    return threadId;
+  }
+
   public void reload(Recipients recipients, long threadId) {
     this.recipients = recipients;
     this.threadId   = threadId;

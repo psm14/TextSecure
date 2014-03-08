@@ -219,11 +219,7 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
 
     initializeConversationState();
 
-    conversationFragment = new ConversationFragment();
-    android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-    ft.setTransition(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-    ft.replace(R.id.fragment_holder, conversationFragment);
-    ft.commit();
+    refreshActiveConversation();
 
     initializeDraft();
     initializeTitleBar();
@@ -863,10 +859,7 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
     emojiDrawer         = (EmojiDrawer)findViewById(R.id.emoji_drawer);
     emojiToggle         = (EmojiToggle)findViewById(R.id.emoji_toggle);
 
-    conversationFragment = new ConversationFragment();
-    android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-    ft.replace(R.id.fragment_holder, conversationFragment);
-    ft.commit();
+    refreshActiveConversation();
 
     conversationList    =  (ConversationListFragment)this.getSupportFragmentManager()
                                .findFragmentById(R.id.conversation_fragment_content);
@@ -988,6 +981,18 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
   }
 
   //////// Helper Methods
+
+  private void refreshActiveConversation() {
+
+      ConversationFragment oldConversation = (ConversationFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_content);
+
+      if (oldConversation == null || oldConversation.getThreadId() != threadId) {
+          conversationFragment = new ConversationFragment();
+          android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+          ft.replace(R.id.fragment_content, conversationFragment);
+          ft.commit();
+      }
+  }
 
   private void addAttachment(int type) {
     Log.w("ComposeMessageActivity", "Selected: " + type);
