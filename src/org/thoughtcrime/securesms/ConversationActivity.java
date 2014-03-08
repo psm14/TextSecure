@@ -266,18 +266,19 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
   @Override
   protected void onPause() {
     super.onPause();
+
+    getSharedPreferences(CONVERSATION_PREFS, Context.MODE_PRIVATE)
+          .edit()
+          .putString(RECIPIENTS_EXTRA, recipients.toIdString())
+          .putLong(THREAD_ID_EXTRA, threadId)
+          .putInt(DISTRIBUTION_TYPE_EXTRA, distributionType)
+          .commit();
+
     MessageNotifier.setVisibleThread(-1L);
   }
 
   @Override
   protected void onDestroy() {
-    getSharedPreferences(CONVERSATION_PREFS, Context.MODE_PRIVATE)
-            .edit()
-            .putString(RECIPIENTS_EXTRA, recipients.toIdString())
-            .putLong(THREAD_ID_EXTRA, threadId)
-            .putInt(DISTRIBUTION_TYPE_EXTRA, distributionType)
-            .commit();
-
     unregisterReceiver(securityUpdateReceiver);
     unregisterReceiver(groupUpdateReceiver);
     saveDraft();
