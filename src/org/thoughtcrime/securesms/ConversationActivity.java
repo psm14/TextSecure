@@ -296,43 +296,54 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
 
   @Override
   public boolean onPrepareOptionsMenu(Menu menu) {
-    MenuInflater inflater = this.getSupportMenuInflater();
-    menu.clear();
+    if (drawerLayout.isDrawerOpen(conversationDrawer)) {
+        MenuInflater inflater = this.getSupportMenuInflater();
+        menu.clear();
 
-    boolean pushRegistered = TextSecurePreferences.isPushRegistered(this);
+        inflater.inflate(R.menu.text_secure_normal, menu);
+        menu.findItem(R.id.menu_clear_passphrase).setVisible(!TextSecurePreferences.isPasswordDisabled(this));
 
-    if (isSingleConversation() && isEncryptedConversation) {
-      if (isAuthenticatedConversation) {
-        inflater.inflate(R.menu.conversation_secure_identity, menu);
-      } else {
-        inflater.inflate(R.menu.conversation_secure_no_identity, menu);
-      }
+        super.onPrepareOptionsMenu(menu);
+        return true;
+    } else {
+        MenuInflater inflater = this.getSupportMenuInflater();
+        menu.clear();
 
-      inflater.inflate(R.menu.conversation_secure_sms, menu.findItem(R.id.menu_security).getSubMenu());
-    } else if (isSingleConversation() && !pushRegistered) {
-      inflater.inflate(R.menu.conversation_insecure, menu);
-    }
+        boolean pushRegistered = TextSecurePreferences.isPushRegistered(this);
 
-    if (isSingleConversation()) {
-      inflater.inflate(R.menu.conversation_callable, menu);
-    } else if (isGroupConversation()) {
-      inflater.inflate(R.menu.conversation_group_options, menu);
+        if (isSingleConversation() && isEncryptedConversation) {
+          if (isAuthenticatedConversation) {
+            inflater.inflate(R.menu.conversation_secure_identity, menu);
+          } else {
+            inflater.inflate(R.menu.conversation_secure_no_identity, menu);
+          }
 
-      if (!isPushGroupConversation()) {
-        inflater.inflate(R.menu.conversation_mms_group_options, menu);
-        if (distributionType == ThreadDatabase.DistributionTypes.BROADCAST) {
-          menu.findItem(R.id.menu_distribution_broadcast).setChecked(true);
-        } else {
-          menu.findItem(R.id.menu_distribution_conversation).setChecked(true);
+          inflater.inflate(R.menu.conversation_secure_sms, menu.findItem(R.id.menu_security).getSubMenu());
+        } else if (isSingleConversation() && !pushRegistered) {
+          inflater.inflate(R.menu.conversation_insecure, menu);
         }
-      } else if (isActiveGroup()) {
-        inflater.inflate(R.menu.conversation_push_group_options, menu);
-      }
-    }
 
-    inflater.inflate(R.menu.conversation, menu);
-    super.onPrepareOptionsMenu(menu);
-    return true;
+        if (isSingleConversation()) {
+          inflater.inflate(R.menu.conversation_callable, menu);
+        } else if (isGroupConversation()) {
+          inflater.inflate(R.menu.conversation_group_options, menu);
+
+          if (!isPushGroupConversation()) {
+            inflater.inflate(R.menu.conversation_mms_group_options, menu);
+            if (distributionType == ThreadDatabase.DistributionTypes.BROADCAST) {
+              menu.findItem(R.id.menu_distribution_broadcast).setChecked(true);
+            } else {
+              menu.findItem(R.id.menu_distribution_conversation).setChecked(true);
+            }
+          } else if (isActiveGroup()) {
+            inflater.inflate(R.menu.conversation_push_group_options, menu);
+          }
+        }
+
+        inflater.inflate(R.menu.conversation, menu);
+        super.onPrepareOptionsMenu(menu);
+        return true;
+    }
   }
 
   @Override
