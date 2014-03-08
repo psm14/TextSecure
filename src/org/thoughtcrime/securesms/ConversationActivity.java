@@ -128,7 +128,7 @@ import static org.whispersystems.textsecure.push.PushMessageProtos.PushMessageCo
  *
  */
 public class ConversationActivity extends PassphraseRequiredSherlockFragmentActivity
-    implements ConversationFragment.ConversationFragmentListener
+    implements ConversationFragment.ConversationFragmentListener, ConversationListFragment.ConversationSelectedListener
 {
   private static final String TAG = ConversationActivity.class.getSimpleName();
 
@@ -154,6 +154,7 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
   private ImageButton     addContactButton;
   private ImageButton     sendButton;
   private TextView        charactersLeft;
+  private ConversationListFragment conversationList;
 
   private AttachmentTypeSelectorAdapter attachmentAdapter;
   private AttachmentManager             attachmentManager;
@@ -402,30 +403,29 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
     builder.setCancelable(true);
     builder.setMessage(R.string.ConversationActivity_are_you_sure_that_you_want_to_abort_this_secure_session_question);
     builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        if (isSingleConversation()) {
-          ConversationActivity self      = ConversationActivity.this;
-          Recipient            recipient = getRecipients().getPrimaryRecipient();
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            if (isSingleConversation()) {
+                ConversationActivity self = ConversationActivity.this;
+                Recipient recipient = getRecipients().getPrimaryRecipient();
 
-          if (SessionRecordV2.hasSession(self, masterSecret,
-                                         recipient.getRecipientId(),
-                                         RecipientDevice.DEFAULT_DEVICE_ID))
-          {
-            OutgoingEndSessionMessage endSessionMessage =
-                new OutgoingEndSessionMessage(new OutgoingTextMessage(getRecipients(), "TERMINATE"));
+                if (SessionRecordV2.hasSession(self, masterSecret,
+                        recipient.getRecipientId(),
+                        RecipientDevice.DEFAULT_DEVICE_ID)) {
+                    OutgoingEndSessionMessage endSessionMessage =
+                            new OutgoingEndSessionMessage(new OutgoingTextMessage(getRecipients(), "TERMINATE"));
 
-            long allocatedThreadId = MessageSender.send(self, masterSecret,
-                                                        endSessionMessage, threadId);
+                    long allocatedThreadId = MessageSender.send(self, masterSecret,
+                            endSessionMessage, threadId);
 
-            sendComplete(recipients, allocatedThreadId, allocatedThreadId != self.threadId);
-          } else {
-            Session.abortSessionFor(self, recipient);
-            initializeSecurity();
-            initializeTitleBar();
-          }
+                    sendComplete(recipients, allocatedThreadId, allocatedThreadId != self.threadId);
+                } else {
+                    Session.abortSessionFor(self, recipient);
+                    initializeSecurity();
+                    initializeTitleBar();
+                }
+            }
         }
-      }
     });
     builder.setNegativeButton(R.string.no, null);
     builder.show();
@@ -728,6 +728,10 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
     charactersLeft      = (TextView)findViewById(R.id.space_left);
     emojiDrawer         = (EmojiDrawer)findViewById(R.id.emoji_drawer);
     emojiToggle         = (EmojiToggle)findViewById(R.id.emoji_toggle);
+
+    conversationList    =  (ConversationListFragment)this.getSupportFragmentManager()
+                               .findFragmentById(R.id.conversation_fragment_content);
+    conversationList.setMasterSecret(masterSecret);
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
       emojiToggle.setVisibility(View.GONE);
@@ -1129,7 +1133,19 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
     }
   }
 
-  // Listeners
+  @Override
+  public void onCreateConversation(long threadId, Recipients recipients, int distributionType) {
+    Intent intent = new Intent(this, ConversationActivity.class);
+    intent.putExtra(ConversationActivity.RECIPIENTS_EXTRA, recipients.toIdString());
+    intent.putExtra(ConversationActivity.THREAD_ID_EXTRA, threadId);
+    intent.putExtra(ConversationActivity.MASTER_SECRET_EXTRA, masterSecret);
+    intent.putExtra(ConversationActivity.DISTRIBUTION_TYPE_EXTRA, distributionType);
+
+    startActivity(intent);
+    finish();
+  }
+
+    // Listeners
 
   private class AddRecipientButtonListener implements OnClickListener {
     @Override
