@@ -424,6 +424,8 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
     if (emojiDrawer.getVisibility() == View.VISIBLE) {
       emojiDrawer.setVisibility(View.GONE);
       emojiToggle.toggle();
+    } else if (!drawerLayout.isDrawerOpen(conversationDrawer)) {
+      drawerLayout.openDrawer(conversationDrawer);
     } else {
       super.onBackPressed();
     }
@@ -846,6 +848,7 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
     conversationList.setMasterSecret(masterSecret);
 
     drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+    drawerLayout.setFocusableInTouchMode(false);
     conversationDrawer = (RelativeLayout)findViewById(R.id.conversation_list_drawer);
 
     drawerToggle = new DrawerToggle(this, drawerLayout,
