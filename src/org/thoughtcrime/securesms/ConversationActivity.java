@@ -17,6 +17,7 @@
 package org.thoughtcrime.securesms;
 
 import android.app.AlertDialog;
+import android.app.FragmentTransaction;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -31,6 +32,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.v4.widget.DrawerLayout;
 import android.telephony.PhoneNumberUtils;
 import android.text.Editable;
 import android.text.InputType;
@@ -48,6 +50,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -155,6 +158,8 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
   private ImageButton     sendButton;
   private TextView        charactersLeft;
   private ConversationListFragment conversationList;
+  private DrawerLayout    drawerLayout;
+  private RelativeLayout  conversationDrawer;
 
   private AttachmentTypeSelectorAdapter attachmentAdapter;
   private AttachmentManager             attachmentManager;
@@ -186,9 +191,32 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
     ActionBarUtil.initializeDefaultActionBar(this, getSupportActionBar());
 
     initializeReceivers();
+    initializeConversationState();
     initializeResources();
     initializeDraft();
     initializeTitleBar();
+  }
+
+  @Override
+  protected void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    setIntent(intent);
+
+    initializeConversationState();
+
+    ConversationFragment nextConversation = new ConversationFragment();
+    android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+    ft.replace(R.id.fragment_content, nextConversation);
+    ft.setCustomAnimations(android.R.anim.fade_out, android.R.anim.fade_in);
+    ft.commit();
+
+    initializeDraft();
+    initializeTitleBar();
+    initializeSecurity();
+
+    if (drawerLayout.isDrawerOpen(conversationDrawer)) {
+        drawerLayout.closeDrawer(conversationDrawer);
+    }
   }
 
   @Override
@@ -715,16 +743,19 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
     }
   }
 
-  private void initializeResources() {
-    recipientsPanel     = (RecipientsPanel)findViewById(R.id.recipients);
+  private void initializeConversationState() {
     recipients          = RecipientFactory.getRecipientsForIds(this, getIntent().getStringExtra(RECIPIENTS_EXTRA), true);
     threadId            = getIntent().getLongExtra(THREAD_ID_EXTRA, -1);
     distributionType    = getIntent().getIntExtra(DISTRIBUTION_TYPE_EXTRA,
-                                                  ThreadDatabase.DistributionTypes.DEFAULT);
+            ThreadDatabase.DistributionTypes.DEFAULT);
+    masterSecret        = getIntent().getParcelableExtra(MASTER_SECRET_EXTRA);
+  }
+
+  private void initializeResources() {
+    recipientsPanel     = (RecipientsPanel)findViewById(R.id.recipients);
     addContactButton    = (ImageButton)findViewById(R.id.contacts_button);
     sendButton          = (ImageButton)findViewById(R.id.send_button);
     composeText         = (EditText)findViewById(R.id.embedded_text_editor);
-    masterSecret        = getIntent().getParcelableExtra(MASTER_SECRET_EXTRA);
     charactersLeft      = (TextView)findViewById(R.id.space_left);
     emojiDrawer         = (EmojiDrawer)findViewById(R.id.emoji_drawer);
     emojiToggle         = (EmojiToggle)findViewById(R.id.emoji_toggle);
@@ -732,6 +763,9 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
     conversationList    =  (ConversationListFragment)this.getSupportFragmentManager()
                                .findFragmentById(R.id.conversation_fragment_content);
     conversationList.setMasterSecret(masterSecret);
+
+    drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+    conversationDrawer = (RelativeLayout)findViewById(R.id.conversation_list_drawer);
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
       emojiToggle.setVisibility(View.GONE);
@@ -1140,9 +1174,9 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
     intent.putExtra(ConversationActivity.THREAD_ID_EXTRA, threadId);
     intent.putExtra(ConversationActivity.MASTER_SECRET_EXTRA, masterSecret);
     intent.putExtra(ConversationActivity.DISTRIBUTION_TYPE_EXTRA, distributionType);
+    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-    startActivity(intent);
-    finish();
+    onNewIntent(intent);
   }
 
     // Listeners

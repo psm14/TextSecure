@@ -117,6 +117,7 @@ android:layout_height="match_parent">
     </LinearLayout>
 
     <RelativeLayout
+        android:id="@+id/conversation_list_drawer"
         android:layout_width="320dp"
         android:layout_height="match_parent"
         android:background="?conversation_background"
