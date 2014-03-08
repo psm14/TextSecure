@@ -214,7 +214,7 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
 
     conversationFragment = new ConversationFragment();
     android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-    ft.setTransition(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+    //ft.setTransition(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE);
     ft.replace(R.id.fragment_holder, conversationFragment);
     ft.commit();
 
