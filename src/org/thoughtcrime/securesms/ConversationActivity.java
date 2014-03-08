@@ -146,6 +146,7 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
   public static final String DRAFT_IMAGE_EXTRA       = "draft_image";
   public static final String DRAFT_AUDIO_EXTRA       = "draft_audio";
   public static final String DRAFT_VIDEO_EXTRA       = "draft_video";
+  public static final String FORWARDED_TEXT_EXTRA    = "forwarded_message";
   public static final String DISTRIBUTION_TYPE_EXTRA = "distribution_type";
 
   private static final String CONVERSATION_PREFS     = "ConversationState";
@@ -793,7 +794,8 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
   }
 
   private void initializeConversationState() {
-    if (!getIntent().hasExtra(RECIPIENTS_EXTRA) || getIntent().getStringExtra(RECIPIENTS_EXTRA).equals("")) {
+    Intent oldIntent = getIntent();
+    if (!oldIntent.hasExtra(RECIPIENTS_EXTRA) || oldIntent.getStringExtra(RECIPIENTS_EXTRA).equals("")) {
         SharedPreferences preferences = getSharedPreferences(CONVERSATION_PREFS, Context.MODE_PRIVATE);
         Intent intent = new Intent(this, ConversationActivity.class);
         long threadId = preferences.getLong(THREAD_ID_EXTRA, -1);
@@ -807,6 +809,20 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
             intent.putExtra(DISTRIBUTION_TYPE_EXTRA, preferences.getInt(DISTRIBUTION_TYPE_EXTRA, ThreadDatabase.DistributionTypes.DEFAULT));
         }
         intent.putExtra(MASTER_SECRET_EXTRA, getIntent().getParcelableExtra(MASTER_SECRET_EXTRA));
+
+        if (oldIntent.hasExtra(FORWARDED_TEXT_EXTRA)) {
+            intent.putExtra(FORWARDED_TEXT_EXTRA, oldIntent.getStringExtra(FORWARDED_TEXT_EXTRA));
+        }
+        if (oldIntent.hasExtra(DRAFT_TEXT_EXTRA)) {
+            intent.putExtra(DRAFT_TEXT_EXTRA, oldIntent.getStringExtra(DRAFT_TEXT_EXTRA));
+        }
+        if (oldIntent.hasExtra(DRAFT_IMAGE_EXTRA)) {
+            intent.putExtra(DRAFT_IMAGE_EXTRA, oldIntent.getParcelableExtra(DRAFT_IMAGE_EXTRA));
+        }
+        if (oldIntent.hasExtra(DRAFT_AUDIO_EXTRA)) {
+            intent.putExtra(DRAFT_AUDIO_EXTRA, oldIntent.getParcelableExtra(DRAFT_AUDIO_EXTRA));
+        }
+
         setIntent(intent);
     }
 
@@ -901,9 +917,9 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
       getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
     }
 
-    if (getIntent().getStringExtra("forwarded_message") != null) {
+    if (getIntent().getStringExtra(FORWARDED_TEXT_EXTRA) != null) {
       composeText.setText(getString(R.string.ConversationActivity_forward_message_prefix) + ": " +
-                          getIntent().getStringExtra("forwarded_message"));
+                          getIntent().getStringExtra(FORWARDED_TEXT_EXTRA));
     }
   }
 
