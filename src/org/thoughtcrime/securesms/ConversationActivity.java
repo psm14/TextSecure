@@ -420,14 +420,6 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
 
   //////// Event Handlers
 
-  private void handleReturnToConversationList() {
-    /*Intent intent = new Intent(this, ConversationListActivity.class);
-    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-    intent.putExtra("master_secret", masterSecret);
-    startActivity(intent);
-    finish();*/
-  }
-
   private void handleVerifyIdentity() {
     Intent verifyIdentityIntent = new Intent(this, VerifyIdentityActivity.class);
     verifyIdentityIntent.putExtra("recipient", getRecipients().getPrimaryRecipient());
