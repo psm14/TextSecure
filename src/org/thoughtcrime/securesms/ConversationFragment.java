@@ -176,6 +176,7 @@ public class ConversationFragment extends SherlockListFragment
     Intent composeIntent = new Intent(getActivity(), ConversationActivity.class);
     composeIntent.putExtra("forwarded_message", message.getDisplayBody().toString());
     composeIntent.putExtra("master_secret", masterSecret);
+    composeIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
     startActivity(composeIntent);
   }
 

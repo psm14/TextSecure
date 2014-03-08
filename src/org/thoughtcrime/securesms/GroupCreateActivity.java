@@ -530,6 +530,7 @@ public class GroupCreateActivity extends PassphraseRequiredSherlockFragmentActiv
 
         ArrayList<Recipient> selectedContactsList = setToArrayList(selectedContacts);
         intent.putExtra(ConversationActivity.RECIPIENTS_EXTRA, new Recipients(selectedContactsList).toIdString());
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
         finish();
       } else {
@@ -625,6 +626,7 @@ public class GroupCreateActivity extends PassphraseRequiredSherlockFragmentActiv
         intent.putExtra(ConversationActivity.THREAD_ID_EXTRA, threadId);
         intent.putExtra(ConversationActivity.DISTRIBUTION_TYPE_EXTRA, ThreadDatabase.DistributionTypes.DEFAULT);
         intent.putExtra(ConversationActivity.RECIPIENTS_EXTRA, recipients.toIdString());
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
         finish();
       } else if (threadId == RES_BAD_NUMBER) {
