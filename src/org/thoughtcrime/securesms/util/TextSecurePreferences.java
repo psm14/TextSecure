@@ -44,6 +44,11 @@ public class TextSecurePreferences {
   private static final String DIRECTORY_FRESH_TIME_PREF        = "pref_directory_refresh_time";
   private static final String IN_THREAD_NOTIFICATION_PREF      = "pref_key_inthread_notifications";
 
+  public static final String IMPORT_EXPORT_PREF                = "pref_import_export";
+  public static final String MY_IDENTITY_PREF                  = "pref_my_identity";
+  public static final String CONTACT_IDENTITY_PREF             = "pref_contact_keys";
+
+
   private static final String LOCAL_REGISTRATION_ID_PREF       = "pref_local_registration_id";
   public  static final String ALLOW_SMS_FALLBACK_PREF          = "pref_allow_sms_traffic_out";
 

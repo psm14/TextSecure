@@ -61,6 +61,7 @@ import org.thoughtcrime.securesms.util.MemoryCleaner;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.thoughtcrime.securesms.util.Trimmer;
 import org.thoughtcrime.securesms.util.Util;
+import org.w3c.dom.Text;
 import org.whispersystems.textsecure.crypto.MasterSecret;
 import org.whispersystems.textsecure.push.AuthorizationFailedException;
 import org.whispersystems.textsecure.push.PushServiceSocket;
@@ -77,6 +78,8 @@ import java.io.IOException;
 public class ApplicationPreferencesActivity extends PassphraseRequiredSherlockPreferenceActivity
     implements SharedPreferences.OnSharedPreferenceChangeListener
 {
+
+  public static final String MASTER_SECRET_EXTRA     = "master_secret";
 
   private static final int PICK_IDENTITY_CONTACT        = 1;
   private static final int ENABLE_PASSPHRASE_ACTIVITY   = 2;
@@ -96,6 +99,8 @@ public class ApplicationPreferencesActivity extends PassphraseRequiredSherlockPr
     dynamicTheme.onCreate(this);
     dynamicLanguage.onCreate(this);
     super.onCreate(icicle);
+
+    final MasterSecret masterSecret = getIntent().getParcelableExtra(MASTER_SECRET_EXTRA);
 
     this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     ActionBarUtil.initializeDefaultActionBar(this, getSupportActionBar());
@@ -130,6 +135,40 @@ public class ApplicationPreferencesActivity extends PassphraseRequiredSherlockPr
     initializeListSummary((ListPreference) findPreference(TextSecurePreferences.LED_COLOR_PREF));
     initializeListSummary((ListPreference) findPreference(TextSecurePreferences.LED_BLINK_PREF));
     initializeRingtoneSummary((RingtonePreference) findPreference(TextSecurePreferences.RINGTONE_PREF));
+
+    if (masterSecret != null) {
+        this.findPreference(TextSecurePreferences.IMPORT_EXPORT_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Intent intent = new Intent(ApplicationPreferencesActivity.this, ImportExportActivity.class);
+                intent.putExtra("master_secret", masterSecret);
+                startActivity(intent);
+                return true;
+            }
+        });
+        this.findPreference(TextSecurePreferences.MY_IDENTITY_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Intent intent = new Intent(ApplicationPreferencesActivity.this, ViewLocalIdentityActivity.class);
+                intent.putExtra("master_secret", masterSecret);
+                startActivity(intent);
+                return true;
+            }
+        });
+        this.findPreference(TextSecurePreferences.CONTACT_IDENTITY_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Intent intent = new Intent(ApplicationPreferencesActivity.this, ReviewIdentitiesActivity.class);
+                intent.putExtra("master_secret", masterSecret);
+                startActivity(intent);
+                return true;
+            }
+        });
+    } else {
+        this.findPreference(TextSecurePreferences.IMPORT_EXPORT_PREF).setEnabled(false);
+        this.findPreference(TextSecurePreferences.MY_IDENTITY_PREF).setEnabled(false);
+        this.findPreference(TextSecurePreferences.CONTACT_IDENTITY_PREF).setEnabled(false);
+    }
   }
 
   @Override

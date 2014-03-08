@@ -170,6 +170,15 @@
                            android:title="@string/preferences__screen_security"
                            android:summary="@string/preferences__disable_screen_security_to_allow_screen_shots" />
 
+        <Preference android:key="pref_import_export"
+                    android:title="@string/arrays__import_export"/>
+
+        <Preference android:key="pref_my_identity"
+                    android:title="@string/arrays__my_identity_key"/>
+
+        <Preference android:key="pref_contact_keys"
+                    android:title="@string/arrays__contact_keys"/>
+
         <Preference android:key="pref_mms_preferences"
                     android:title="@string/preferences__advanced_mms_access_point_names"/>
 
