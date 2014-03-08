@@ -143,6 +143,7 @@ public class RoutingActivity extends PassphraseRequiredSherlockActivity {
   private Intent getConversationIntent(ConversationParameters parameters) {
     Intent intent = new Intent(this, ConversationActivity.class);
     intent.putExtra(ConversationActivity.RECIPIENTS_EXTRA, parameters.recipients != null ? parameters.recipients.toIdString() : "");
+    intent.putExtra(ConversationActivity.OPEN_CONVERSATION_LIST_EXTRA, parameters.recipients == null);
     intent.putExtra(ConversationActivity.THREAD_ID_EXTRA, parameters.thread);
     intent.putExtra(ConversationActivity.MASTER_SECRET_EXTRA, masterSecret);
     intent.putExtra(ConversationActivity.DRAFT_TEXT_EXTRA, parameters.draftText);

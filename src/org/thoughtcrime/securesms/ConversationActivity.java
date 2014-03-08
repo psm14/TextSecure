@@ -148,6 +148,7 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
   public static final String DRAFT_VIDEO_EXTRA       = "draft_video";
   public static final String FORWARDED_TEXT_EXTRA    = "forwarded_message";
   public static final String DISTRIBUTION_TYPE_EXTRA = "distribution_type";
+  public static final String OPEN_CONVERSATION_LIST_EXTRA = "open_drawer";
 
   private static final String CONVERSATION_PREFS     = "ConversationState";
 
@@ -231,8 +232,14 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
     handler.postDelayed(new Runnable() {
         @Override
         public void run() {
-            if (drawerLayout.isDrawerOpen(conversationDrawer)) {
+
+            boolean desired = getIntent().getBooleanExtra(OPEN_CONVERSATION_LIST_EXTRA, false);
+            boolean current = drawerLayout.isDrawerOpen(conversationDrawer);
+
+            if (!desired && current) {
                 drawerLayout.closeDrawer(conversationDrawer);
+            } else if (desired && !current) {
+                drawerLayout.openDrawer(conversationDrawer);
             }
         }
     }, 250);
@@ -822,6 +829,7 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
         if (oldIntent.hasExtra(DRAFT_AUDIO_EXTRA)) {
             intent.putExtra(DRAFT_AUDIO_EXTRA, oldIntent.getParcelableExtra(DRAFT_AUDIO_EXTRA));
         }
+        intent.putExtra(OPEN_CONVERSATION_LIST_EXTRA, oldIntent.getBooleanExtra(OPEN_CONVERSATION_LIST_EXTRA, false));
 
         setIntent(intent);
     }
@@ -880,6 +888,15 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
         }
     });
     drawerLayout.setDrawerListener(drawerToggle);
+
+    if (getIntent().getBooleanExtra(OPEN_CONVERSATION_LIST_EXTRA, false) || recipients == null || recipients.isEmpty()) {
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                drawerLayout.openDrawer(conversationDrawer);
+            }
+        }, 250);
+    }
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
       emojiToggle.setVisibility(View.GONE);
@@ -1286,6 +1303,7 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
     intent.putExtra(ConversationActivity.THREAD_ID_EXTRA, threadId);
     intent.putExtra(ConversationActivity.MASTER_SECRET_EXTRA, masterSecret);
     intent.putExtra(ConversationActivity.DISTRIBUTION_TYPE_EXTRA, distributionType);
+    intent.putExtra(ConversationActivity.OPEN_CONVERSATION_LIST_EXTRA, false);
     intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
     startActivity(intent);
