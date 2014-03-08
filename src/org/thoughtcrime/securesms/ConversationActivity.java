@@ -33,6 +33,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.ContactsContract;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
@@ -188,11 +189,15 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
   private DynamicTheme        dynamicTheme        = new DynamicTheme();
   private DynamicLanguage     dynamicLanguage     = new DynamicLanguage();
 
+  private Handler handler;
+
   @Override
   protected void onCreate(Bundle state) {
     dynamicTheme.onCreate(this);
     dynamicLanguage.onCreate(this);
     super.onCreate(state);
+
+    handler = new Handler();
 
     setContentView(R.layout.conversation_activity);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -214,7 +219,7 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
 
     conversationFragment = new ConversationFragment();
     android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-    //ft.setTransition(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+    ft.setTransition(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE);
     ft.replace(R.id.fragment_holder, conversationFragment);
     ft.commit();
 
@@ -222,9 +227,15 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
     initializeTitleBar();
     initializeSecurity();
 
-    if (drawerLayout.isDrawerOpen(conversationDrawer)) {
-        drawerLayout.closeDrawer(conversationDrawer);
-    }
+    handler.postDelayed(new Runnable() {
+        @Override
+        public void run() {
+            if (drawerLayout.isDrawerOpen(conversationDrawer)) {
+                drawerLayout.closeDrawer(conversationDrawer);
+            }
+        }
+    }, 200);
+
   }
 
   @Override
