@@ -16,6 +16,7 @@
  */
 package org.thoughtcrime.securesms;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.content.ActivityNotFoundException;
@@ -32,6 +33,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.telephony.PhoneNumberUtils;
 import android.text.Editable;
@@ -159,6 +161,7 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
   private TextView        charactersLeft;
   private ConversationListFragment conversationList;
   private DrawerLayout    drawerLayout;
+  private DrawerToggle    drawerToggle;
   private RelativeLayout  conversationDrawer;
   private ConversationFragment conversationFragment;
 
@@ -609,40 +612,45 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
   ///// Initializers
 
   private void initializeTitleBar() {
-    String title    = null;
-    String subtitle = null;
-
-    if (isSingleConversation()) {
-      title = getRecipients().getPrimaryRecipient().getName();
-
-      if (title == null || title.trim().length() == 0) {
-        title = getRecipients().getPrimaryRecipient().getNumber();
-      } else {
-        subtitle = getRecipients().getPrimaryRecipient().getNumber();
-      }
-    } else if (isGroupConversation()) {
-      if (isPushGroupConversation()) {
-        final String groupName = getRecipients().getPrimaryRecipient().getName();
-        title = (!TextUtils.isEmpty(groupName)) ? groupName : getString(R.string.ConversationActivity_unnamed_group);
-        final Bitmap avatar = getRecipients().getPrimaryRecipient().getContactPhoto();
-        if (avatar != null) {
-          getSupportActionBar().setIcon(new BitmapDrawable(getResources(), BitmapUtil.getCircleCroppedBitmap(avatar)));
-        }
-      } else {
-        title = getString(R.string.ConversationActivity_group_conversation);
-        int size = getRecipients().getRecipientsList().size();
-        subtitle = (size == 1) ? getString(R.string.ConversationActivity_d_recipients_in_group_singular)
-            : String.format(getString(R.string.ConversationActivity_d_recipients_in_group), size);
-      }
+    if (drawerLayout.isDrawerOpen(conversationDrawer)) {
+        this.getSupportActionBar().setTitle(getString(R.string.app_name));
+        this.getSupportActionBar().setSubtitle(null);
     } else {
-      title    = getString(R.string.ConversationActivity_compose_message);
-      subtitle = "";
+        String title    = null;
+        String subtitle = null;
+
+        if (isSingleConversation()) {
+          title = getRecipients().getPrimaryRecipient().getName();
+
+          if (title == null || title.trim().length() == 0) {
+            title = getRecipients().getPrimaryRecipient().getNumber();
+          } else {
+            subtitle = getRecipients().getPrimaryRecipient().getNumber();
+          }
+        } else if (isGroupConversation()) {
+          if (isPushGroupConversation()) {
+            final String groupName = getRecipients().getPrimaryRecipient().getName();
+            title = (!TextUtils.isEmpty(groupName)) ? groupName : getString(R.string.ConversationActivity_unnamed_group);
+            final Bitmap avatar = getRecipients().getPrimaryRecipient().getContactPhoto();
+            if (avatar != null) {
+              getSupportActionBar().setIcon(new BitmapDrawable(getResources(), BitmapUtil.getCircleCroppedBitmap(avatar)));
+            }
+          } else {
+            title = getString(R.string.ConversationActivity_group_conversation);
+            int size = getRecipients().getRecipientsList().size();
+            subtitle = (size == 1) ? getString(R.string.ConversationActivity_d_recipients_in_group_singular)
+                : String.format(getString(R.string.ConversationActivity_d_recipients_in_group), size);
+          }
+        } else {
+          title    = getString(R.string.ConversationActivity_compose_message);
+          subtitle = "";
+        }
+
+        this.getSupportActionBar().setTitle(title);
+
+        if (subtitle != null && !Util.isEmpty(subtitle))
+          this.getSupportActionBar().setSubtitle(PhoneNumberUtils.formatNumber(subtitle));
     }
-
-    this.getSupportActionBar().setTitle(title);
-
-    if (subtitle != null && !Util.isEmpty(subtitle))
-      this.getSupportActionBar().setSubtitle(PhoneNumberUtils.formatNumber(subtitle));
 
     this.invalidateOptionsMenu();
   }
@@ -772,6 +780,13 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
 
     drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
     conversationDrawer = (RelativeLayout)findViewById(R.id.conversation_list_drawer);
+
+    drawerToggle = new DrawerToggle(this, drawerLayout,
+              R.drawable.ic_drawer,
+              R.string.conversation_list__drawer_open,
+              R.string.conversation_list__drawer_close);
+
+    drawerLayout.setDrawerListener(drawerToggle);
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
       emojiToggle.setVisibility(View.GONE);
@@ -1285,5 +1300,34 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
   public void setComposeText(String text) {
     this.composeText.setText(text);
   }
+
+  class DrawerToggle extends ActionBarDrawerToggle {
+
+      public DrawerToggle(Activity activity, DrawerLayout drawerLayout,
+                          int drawerImageRes, int openDrawerContentDescRes,
+                          int closeDrawerContentDescRes) {
+
+          super(activity, drawerLayout, drawerImageRes,
+                  openDrawerContentDescRes, closeDrawerContentDescRes);
+      }
+
+      @Override
+      public void onDrawerClosed(View drawerView) {
+
+          super.onDrawerClosed(drawerView);
+
+          initializeTitleBar();
+          invalidateOptionsMenu();
+      }
+
+      @Override
+      public void onDrawerOpened(View drawerView) {
+
+          super.onDrawerOpened(drawerView);
+
+          initializeTitleBar();
+          invalidateOptionsMenu();
+      }
+    }
 
 }
