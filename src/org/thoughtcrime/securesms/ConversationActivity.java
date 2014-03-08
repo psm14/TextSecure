@@ -376,11 +376,19 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
             case R.id.menu_distribution_conversation: handleDistributionConversationEnabled(item);       return true;
             case R.id.menu_edit_group:                handleEditPushGroup();                             return true;
             case R.id.menu_leave:                     handleLeavePushGroup();                            return true;
-            case android.R.id.home:                   handleReturnToConversationList();                  return true;
+            case android.R.id.home:                   handleNavigationDrawerToggle();                    return true;
         }
 
         return false;
     }
+  }
+
+  private void handleNavigationDrawerToggle() {
+      if (drawerLayout.isDrawerOpen(conversationDrawer)) {
+          drawerLayout.closeDrawer(conversationDrawer);
+      } else {
+          drawerLayout.openDrawer(conversationDrawer);
+      }
   }
 
   @Override
@@ -808,6 +816,9 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
   }
 
   private void initializeResources() {
+    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    getSupportActionBar().setHomeButtonEnabled(true);
+
     recipientsPanel     = (RecipientsPanel)findViewById(R.id.recipients);
     addContactButton    = (ImageButton)findViewById(R.id.contacts_button);
     sendButton          = (ImageButton)findViewById(R.id.send_button);
