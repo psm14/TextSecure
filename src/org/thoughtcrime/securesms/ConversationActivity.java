@@ -160,6 +160,7 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
   private ConversationListFragment conversationList;
   private DrawerLayout    drawerLayout;
   private RelativeLayout  conversationDrawer;
+  private ConversationFragment conversationFragment;
 
   private AttachmentTypeSelectorAdapter attachmentAdapter;
   private AttachmentManager             attachmentManager;
@@ -204,10 +205,10 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
 
     initializeConversationState();
 
-    ConversationFragment nextConversation = new ConversationFragment();
+    conversationFragment = new ConversationFragment();
     android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-    ft.replace(R.id.fragment_content, nextConversation);
-    ft.setCustomAnimations(android.R.anim.fade_out, android.R.anim.fade_in);
+    ft.setTransition(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+    ft.replace(R.id.fragment_holder, conversationFragment);
     ft.commit();
 
     initializeDraft();
@@ -760,6 +761,11 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
     emojiDrawer         = (EmojiDrawer)findViewById(R.id.emoji_drawer);
     emojiToggle         = (EmojiToggle)findViewById(R.id.emoji_toggle);
 
+    conversationFragment = new ConversationFragment();
+    android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+    ft.replace(R.id.fragment_holder, conversationFragment);
+    ft.commit();
+
     conversationList    =  (ConversationListFragment)this.getSupportFragmentManager()
                                .findFragmentById(R.id.conversation_fragment_content);
     conversationList.setMasterSecret(masterSecret);
@@ -1099,11 +1105,7 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
     this.threadId   = threadId;
 
     if (refreshFragment) {
-      ConversationFragment fragment
-        = (ConversationFragment)this.getSupportFragmentManager()
-          .findFragmentById(R.id.fragment_content);
-
-      fragment.reload(recipients, threadId);
+      conversationFragment.reload(recipients, threadId);
 
       this.recipientsPanel.setVisibility(View.GONE);
       initializeTitleBar();
