@@ -116,11 +116,17 @@ android:layout_height="match_parent">
 
     </LinearLayout>
 
-    <fragment
-        android:id="@+id/conversation_fragment_content"
-        android:name="org.thoughtcrime.securesms.ConversationListFragment"
+    <RelativeLayout
         android:layout_width="320dp"
         android:layout_height="match_parent"
-        android:layout_gravity="start"/>
+        android:background="?conversation_background"
+        android:layout_gravity="start">
 
+        <fragment
+            android:id="@+id/conversation_fragment_content"
+            android:name="org.thoughtcrime.securesms.ConversationListFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </RelativeLayout>
 </android.support.v4.widget.DrawerLayout>
