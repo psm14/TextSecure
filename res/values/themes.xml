@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="TextSecure.LightTheme" parent="@style/Theme.Sherlock.Light">
+    <style name="TextSecure.LightTheme" parent="@style/Theme.Sherlock.Light" tools:ignore="NewApi">
+        <item name="android:homeAsUpIndicator">@drawable/ic_drawer</item>
+        <item name="homeAsUpIndicator">@drawable/ic_drawer</item>
         <item name="navigation_drawer_background">@color/abs__background_holo_light</item>
 
         <item name="conversation_list_item_background_read">@drawable/conversation_list_item_background_read_light</item>
@@ -75,7 +77,9 @@
         <item name="navigation_drawer_shadow">@drawable/drawer_shadow_light</item>
     </style>
 
-    <style name="TextSecure.DarkTheme" parent="@style/TextSecure.Dark">
+    <style name="TextSecure.DarkTheme" parent="@style/TextSecure.Dark" tools:ignore="NewApi">
+        <item name="android:homeAsUpIndicator">@drawable/ic_drawer</item>
+        <item name="homeAsUpIndicator">@drawable/ic_drawer</item>
         <item name="navigation_drawer_background">#ff333333</item>
 
         <item name="conversation_list_item_background_read">@drawable/conversation_list_item_background_read_dark</item>

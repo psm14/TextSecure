@@ -234,7 +234,7 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
                 drawerLayout.closeDrawer(conversationDrawer);
             }
         }
-    }, 200);
+    }, 250);
 
   }
 
@@ -853,6 +853,12 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
               R.string.conversation_list__drawer_open,
               R.string.conversation_list__drawer_close);
 
+    drawerLayout.post(new Runnable() {
+        @Override
+        public void run() {
+            drawerToggle.syncState();
+        }
+    });
     drawerLayout.setDrawerListener(drawerToggle);
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
