@@ -779,7 +779,7 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
   }
 
   private void initializeConversationState() {
-    if (threadId == -1 && !getIntent().hasExtra(THREAD_ID_EXTRA)) {
+    if (!getIntent().hasExtra(RECIPIENTS_EXTRA) || getIntent().getStringExtra(RECIPIENTS_EXTRA).equals("")) {
         SharedPreferences preferences = getSharedPreferences(CONVERSATION_PREFS, Context.MODE_PRIVATE);
         Intent intent = new Intent(this, ConversationActivity.class);
         intent.putExtra(RECIPIENTS_EXTRA, preferences.getString(RECIPIENTS_EXTRA, ""));
