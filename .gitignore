@@ -17,5 +17,5 @@ build-log.xml
 .gradle
 build
 signing.properties
-library/lib/
+library/libs/
 library/obj/
