@@ -35,8 +35,8 @@ public class StandardShortcuts {
     }
 
     private void openSingleContactSelection() {
-        Intent intent = new Intent(activity, SingleContactSelectionActivity.class);
-        intent.putExtra(SingleContactSelectionActivity.MASTER_SECRET_EXTRA, masterSecret);
+        Intent intent = new Intent(activity, NewConversationActivity.class);
+        intent.putExtra(NewConversationActivity.MASTER_SECRET_EXTRA, masterSecret);
         activity.startActivity(intent);
     }
 

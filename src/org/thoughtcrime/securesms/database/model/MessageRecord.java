@@ -28,7 +28,6 @@ import org.thoughtcrime.securesms.database.SmsDatabase;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.Recipients;
 import org.thoughtcrime.securesms.util.GroupUtil;
-import org.whispersystems.textsecure.util.Util;
 
 /**
  * The base class for message record models that are displayed in
@@ -113,12 +112,28 @@ public abstract class MessageRecord extends DisplayRecord {
     return SmsDatabase.Types.isPushType(type);
   }
 
+  public boolean isForcedSms() {
+    return SmsDatabase.Types.isForcedSms(type);
+  }
+
   public boolean isStaleKeyExchange() {
     return SmsDatabase.Types.isStaleKeyExchange(type);
   }
 
   public boolean isProcessedKeyExchange() {
     return SmsDatabase.Types.isProcessedKeyExchange(type);
+  }
+
+  public boolean isPendingSmsFallback() {
+    return SmsDatabase.Types.isPendingSmsFallbackType(type);
+  }
+
+  public boolean isPendingSecureSmsFallback() {
+    return SmsDatabase.Types.isPendingSecureSmsFallbackType(type);
+  }
+
+  public boolean isPendingInsecureSmsFallback() {
+    return SmsDatabase.Types.isPendingInsecureSmsFallbackType(type);
   }
 
   public boolean isBundleKeyExchange() {

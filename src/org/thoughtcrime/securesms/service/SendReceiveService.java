@@ -62,6 +62,8 @@ public class SendReceiveService extends Service {
   public static final String DOWNLOAD_PUSH_ACTION             = "org.thoughtcrime.securesms.SendReceiveService.DOWNLOAD_PUSH_ACTION";
   public static final String DOWNLOAD_AVATAR_ACTION           = "org.thoughtcrime.securesms.SendReceiveService.DOWNLOAD_AVATAR_ACTION";
 
+  public static final String MASTER_SECRET_EXTRA = "master_secret";
+
   private static final int SEND_SMS              = 0;
   private static final int RECEIVE_SMS           = 1;
   private static final int SEND_MMS              = 2;
@@ -213,6 +215,16 @@ public class SendReceiveService extends Service {
     CanonicalSessionMigrator.migrateSessions(this);
   }
 
+  private MasterSecret getPlaceholderSecret() {
+    try {
+      return MasterSecretUtil.getMasterSecret(SendReceiveService.this,
+                                              MasterSecretUtil.UNENCRYPTED_PASSPHRASE);
+    } catch (InvalidPassphraseException e) {
+      Log.w("SendReceiveService", e);
+      return null;
+    }
+  }
+
   private void scheduleIntent(int what, Intent intent) {
     Runnable work = new SendReceiveWorkItem(intent, what);
 
@@ -226,6 +238,10 @@ public class SendReceiveService extends Service {
     Runnable work = new SendReceiveWorkItem(intent, what);
 
     synchronized (workQueue) {
+      if (!hasSecret && TextSecurePreferences.isPasswordDisabled(SendReceiveService.this)) {
+        initializeWithMasterSecret(getPlaceholderSecret());
+      }
+
       if (hasSecret) {
         workQueue.add(work);
         workQueue.notifyAll();
@@ -264,16 +280,6 @@ public class SendReceiveService extends Service {
       case DOWNLOAD_AVATAR:      avatarDownloader.process(masterSecret, intent); return;
       }
     }
-
-    private MasterSecret getPlaceholderSecret() {
-      try {
-        return MasterSecretUtil.getMasterSecret(SendReceiveService.this,
-                                                MasterSecretUtil.UNENCRYPTED_PASSPHRASE);
-      } catch (InvalidPassphraseException e) {
-        Log.w("SendReceiveService", e);
-        return null;
-      }
-    }
   }
 
   public class ToastHandler extends Handler {
@@ -307,7 +313,7 @@ public class SendReceiveService extends Service {
     @Override
     public void onReceive(Context context, Intent intent) {
       Log.w("SendReceiveService", "Got a MasterSecret broadcast...");
-      initializeWithMasterSecret((MasterSecret)intent.getParcelableExtra("master_secret"));
+      initializeWithMasterSecret((MasterSecret)intent.getParcelableExtra(MASTER_SECRET_EXTRA));
     }
   }
 

@@ -65,7 +65,6 @@ import com.google.protobuf.ByteString;
 
 import org.thoughtcrime.securesms.components.EmojiDrawer;
 import org.thoughtcrime.securesms.components.EmojiToggle;
-import org.thoughtcrime.securesms.components.RecipientsPanel;
 import org.thoughtcrime.securesms.contacts.ContactAccessor;
 import org.thoughtcrime.securesms.contacts.ContactAccessor.ContactData;
 import org.thoughtcrime.securesms.crypto.KeyExchangeInitiator;
@@ -95,11 +94,11 @@ import org.thoughtcrime.securesms.sms.MessageSender;
 import org.thoughtcrime.securesms.sms.OutgoingEncryptedMessage;
 import org.thoughtcrime.securesms.sms.OutgoingEndSessionMessage;
 import org.thoughtcrime.securesms.sms.OutgoingTextMessage;
-import org.thoughtcrime.securesms.util.ActionBarUtil;
 import org.thoughtcrime.securesms.util.BitmapDecodingException;
 import org.thoughtcrime.securesms.util.BitmapUtil;
 import org.thoughtcrime.securesms.util.CharacterCalculator;
 import org.thoughtcrime.securesms.util.Dialogs;
+import org.thoughtcrime.securesms.util.DirectoryHelper;
 import org.thoughtcrime.securesms.util.DynamicLanguage;
 import org.thoughtcrime.securesms.util.DynamicTheme;
 import org.thoughtcrime.securesms.util.EncryptedCharacterCalculator;
@@ -109,12 +108,9 @@ import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.whispersystems.textsecure.crypto.InvalidMessageException;
 import org.whispersystems.textsecure.crypto.MasterCipher;
 import org.whispersystems.textsecure.crypto.MasterSecret;
-import org.whispersystems.textsecure.directory.Directory;
-import org.whispersystems.textsecure.directory.NotInDirectoryException;
 import org.whispersystems.textsecure.storage.RecipientDevice;
 import org.whispersystems.textsecure.storage.Session;
 import org.whispersystems.textsecure.storage.SessionRecordV2;
-import org.whispersystems.textsecure.util.InvalidNumberException;
 import org.whispersystems.textsecure.util.Util;
 
 import java.io.IOException;
@@ -152,17 +148,18 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
 
   private static final String CONVERSATION_PREFS     = "ConversationState";
 
-  private static final int PICK_CONTACT      = 1;
-  private static final int PICK_IMAGE        = 2;
-  private static final int PICK_VIDEO        = 3;
-  private static final int PICK_AUDIO        = 4;
-  private static final int PICK_CONTACT_INFO = 5;
-  private static final int GROUP_EDIT        = 6;
+  private static final int PICK_IMAGE        = 1;
+  private static final int PICK_VIDEO        = 2;
+  private static final int PICK_AUDIO        = 3;
+  private static final int PICK_CONTACT_INFO = 4;
+  private static final int GROUP_EDIT        = 5;
+
+  private static final int SEND_ATTRIBUTES[] = new int[]{R.attr.conversation_send_button_push,
+                                                         R.attr.conversation_send_button_sms_secure,
+                                                         R.attr.conversation_send_button_sms_insecure};
 
   private MasterSecret    masterSecret;
-  private RecipientsPanel recipientsPanel;
   private EditText        composeText;
-  private ImageButton     addContactButton;
   private ImageButton     sendButton;
   private TextView        charactersLeft;
   private ConversationListFragment conversationList;
@@ -195,6 +192,7 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
 
   @Override
   protected void onCreate(Bundle state) {
+    overridePendingTransition(R.anim.slide_from_right, R.anim.fade_scale_out);
     dynamicTheme.onCreate(this);
     dynamicLanguage.onCreate(this);
     super.onCreate(state);
@@ -203,7 +201,6 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
 
     setContentView(R.layout.conversation_activity);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    ActionBarUtil.initializeDefaultActionBar(this, getSupportActionBar());
 
     initializeReceivers();
     initializeConversationState();
@@ -249,7 +246,6 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
 
   @Override
   protected void onResume() {
-    initializeRecipientsInput();
 
     super.onResume();
     dynamicTheme.onResume(this);
@@ -279,6 +275,7 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
           .commit();
 
     MessageNotifier.setVisibleThread(-1L);
+    if (isFinishing()) overridePendingTransition(R.anim.fade_scale_in, R.anim.slide_to_right);
   }
 
   @Override
@@ -297,11 +294,6 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
 
     if (data == null || resultCode != RESULT_OK) return;
     switch (reqCode) {
-    case PICK_CONTACT:
-      Recipients recipients = data.getParcelableExtra("recipients");
-      if (recipients != null)
-        recipientsPanel.addRecipients(recipients);
-      break;
     case PICK_IMAGE:
       addAttachmentImage(data.getData());
       break;
@@ -634,7 +626,7 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
   }
 
   private void handleAddAttachment() {
-    if (this.isMmsEnabled || isPushDestination()) {
+    if (this.isMmsEnabled || DirectoryHelper.isPushDestination(this, getRecipients())) {
       AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.TextSecure_Light_Dialog));
       builder.setIcon(R.drawable.ic_dialog_attach);
       builder.setTitle(R.string.ConversationActivity_add_attachment);
@@ -752,26 +744,29 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
   }
 
   private void initializeSecurity() {
-    int        attributes[] = new int[]{R.attr.conversation_send_button,
-                                        R.attr.conversation_send_secure_button};
-    TypedArray drawables    = obtainStyledAttributes(attributes);
+    TypedArray drawables         = obtainStyledAttributes(SEND_ATTRIBUTES);
+    boolean    isPushDestination = DirectoryHelper.isPushDestination(this, getRecipients());
+    Recipient  primaryRecipient  = getRecipients() == null ? null : getRecipients().getPrimaryRecipient();
 
-    if ((getRecipients() != null && getRecipients().isGroupRecipient()) ||
-        (isSingleConversation() && Session.hasSession(this, masterSecret, getRecipients().getPrimaryRecipient())))
+    if (isPushDestination ||
+        (isSingleConversation() && Session.hasSession(this, masterSecret, primaryRecipient)))
     {
-      sendButton.setImageDrawable(drawables.getDrawable(1));
       this.isEncryptedConversation     = true;
-      this.isAuthenticatedConversation = Session.hasRemoteIdentityKey(this, masterSecret, getRecipients().getPrimaryRecipient());
+      this.isAuthenticatedConversation = Session.hasRemoteIdentityKey(this, masterSecret, primaryRecipient);
       this.characterCalculator         = new EncryptedCharacterCalculator();
+
+      if (isPushDestination) sendButton.setImageDrawable(drawables.getDrawable(0));
+      else                   sendButton.setImageDrawable(drawables.getDrawable(1));
     } else {
-      sendButton.setImageDrawable(drawables.getDrawable(0));
       this.isEncryptedConversation     = false;
       this.isAuthenticatedConversation = false;
       this.characterCalculator         = new CharacterCalculator();
+      sendButton.setImageDrawable(drawables.getDrawable(2));
     }
 
-    calculateCharactersRemaining();
     drawables.recycle();
+
+    calculateCharactersRemaining();
   }
 
   private void initializeMmsEnabledCheck() {
@@ -835,15 +830,6 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
     threadId            = intent.getLongExtra(THREAD_ID_EXTRA, -1);
     distributionType    = intent.getIntExtra(DISTRIBUTION_TYPE_EXTRA,
             ThreadDatabase.DistributionTypes.DEFAULT);
-
-    // TODO: This stuff shouldn't be in here
-    if (this.recipientsPanel != null) {
-        this.recipientsPanel.disable();
-        if (this.threadId == -1) {
-            this.recipientsPanel.setVisibility(View.VISIBLE);
-        }
-    }
-
     masterSecret        = getIntent().getParcelableExtra(MASTER_SECRET_EXTRA);
   }
 
@@ -851,8 +837,10 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     getSupportActionBar().setHomeButtonEnabled(true);
 
-    recipientsPanel     = (RecipientsPanel)findViewById(R.id.recipients);
-    addContactButton    = (ImageButton)findViewById(R.id.contacts_button);
+    recipients          = RecipientFactory.getRecipientsForIds(this, getIntent().getStringExtra(RECIPIENTS_EXTRA), true);
+    threadId            = getIntent().getLongExtra(THREAD_ID_EXTRA, -1);
+    distributionType    = getIntent().getIntExtra(DISTRIBUTION_TYPE_EXTRA,
+                                                  ThreadDatabase.DistributionTypes.DEFAULT);
     sendButton          = (ImageButton)findViewById(R.id.send_button);
     composeText         = (EditText)findViewById(R.id.embedded_text_editor);
     charactersLeft      = (TextView)findViewById(R.id.space_left);
@@ -901,10 +889,8 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
     SendButtonListener        sendButtonListener        = new SendButtonListener();
     ComposeKeyPressedListener composeKeyPressedListener = new ComposeKeyPressedListener();
 
-    recipientsPanel.setPanelChangeListener(new RecipientsPanelChangeListener());
     sendButton.setOnClickListener(sendButtonListener);
     sendButton.setEnabled(true);
-    addContactButton.setOnClickListener(new AddRecipientButtonListener());
     composeText.setOnKeyListener(composeKeyPressedListener);
     composeText.addTextChangedListener(composeKeyPressedListener);
     composeText.setOnEditorActionListener(sendButtonListener);
@@ -925,22 +911,6 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && TextSecurePreferences.isScreenSecurityEnabled(this)) {
       getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
-    }
-
-    if (getIntent().getStringExtra(FORWARDED_TEXT_EXTRA) != null) {
-      composeText.setText(getString(R.string.ConversationActivity_forward_message_prefix) + ": " +
-                          getIntent().getStringExtra(FORWARDED_TEXT_EXTRA));
-    }
-  }
-
-  private void initializeRecipientsInput() {
-    if (recipients == null || recipients.isEmpty()) {
-      recipientsPanel.setVisibility(View.VISIBLE);
-    } else if (recipients != null) {
-      recipientsPanel.addRecipients(this.recipients);
-    } else {
-      InputMethodManager input = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-      input.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
     }
   }
 
@@ -1113,9 +1083,10 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
 
     new AsyncTask<Void, Void, Void>() {
       @Override
-      protected void onPreExecute() {
+      protected void onPostExecute(Void aVoid) {
+        super.onPostExecute(aVoid);
         Toast.makeText(ConversationActivity.this,
-                       R.string.ConversationActivity_saving_draft,
+                       R.string.ConversationActivity_saved_draft,
                        Toast.LENGTH_SHORT).show();
       }
 
@@ -1171,38 +1142,8 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
     return getRecipients() != null && getRecipients().isGroupRecipient();
   }
 
-  private boolean isPushDestination() {
-    try {
-      if (!TextSecurePreferences.isPushRegistered(this))
-        return false;
-
-      if (getRecipients() == null)
-        return false;
-
-      if (isPushGroupConversation())
-        return true;
-
-      String number     = getRecipients().getPrimaryRecipient().getNumber();
-      String e164number = org.thoughtcrime.securesms.util.Util.canonicalizeNumber(this, number);
-
-      return Directory.getInstance(this).isActiveNumber(e164number);
-    } catch (InvalidNumberException e) {
-      Log.w(TAG, e);
-      return false;
-    } catch (NotInDirectoryException e) {
-      Log.w(TAG, e);
-      return false;
-    }
-  }
-
   private Recipients getRecipients() {
-    try {
-      if (isExistingConversation()) return this.recipients;
-      else                          return recipientsPanel.getRecipients();
-    } catch (RecipientFormattingException rfe) {
-      Log.d(TAG, "Empty list of recipients retrieved from RecipientsPanel.");
-      return null;
-    }
+    return this.recipients;
   }
 
   private String getMessage() throws InvalidMessageException {
@@ -1230,7 +1171,6 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
 
   private void sendComplete(Recipients recipients, long threadId, boolean refreshFragment) {
     attachmentManager.clear();
-    recipientsPanel.disable();
     composeText.setText("");
 
     this.recipients = recipients;
@@ -1239,15 +1179,15 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
     if (refreshFragment) {
       conversationFragment.reload(recipients, threadId);
 
-      this.recipientsPanel.setVisibility(View.GONE);
       initializeTitleBar();
       initializeSecurity();
     }
+    conversationFragment.scrollToBottom();
   }
 
   private void sendMessage(boolean forcePlaintext) {
     try {
-      Recipients recipients   = getRecipients();
+      Recipients recipients = getRecipients();
 
       if (recipients == null)
         throw new RecipientFormattingException("Badly formatted");
@@ -1316,27 +1256,10 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
 
     // Listeners
 
-  private class AddRecipientButtonListener implements OnClickListener {
-    @Override
-    public void onClick(View v) {
-      Intent intent = new Intent(ConversationActivity.this, ContactSelectionActivity.class);
-      startActivityForResult(intent, PICK_CONTACT);
-    }
-  }
-
   private class AttachmentTypeListener implements DialogInterface.OnClickListener {
     @Override
     public void onClick(DialogInterface dialog, int which) {
       addAttachment(attachmentAdapter.buttonToCommand(which));
-    }
-  }
-
-  private class RecipientsPanelChangeListener implements RecipientsPanel.RecipientsPanelChangedListener {
-    @Override
-    public void onRecipientsPanelUpdate(Recipients recipients) {
-      initializeSecurity();
-      initializeTitleBar();
-      calculateCharactersRemaining();
     }
   }
 
@@ -1384,7 +1307,6 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
           }
         }
       }
-
       return false;
     }
 
@@ -1398,15 +1320,6 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
     @Override
     public void afterTextChanged(Editable s) {
       calculateCharactersRemaining();
-//      if (s == null || s.length() == 0) {
-//        sendButton.setClickable(false);
-//        sendButton.setEnabled(false);
-//        sendButton.setColorFilter(0x66FFFFFF);
-//      } else {
-//        sendButton.setClickable(true);
-//        sendButton.setEnabled(true);
-//        sendButton.setColorFilter(null);
-//      }
     }
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count,int after) {}

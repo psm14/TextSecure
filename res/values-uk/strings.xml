@@ -19,6 +19,9 @@
   <string name="ApplicationPreferencesActivity_unregistering">Видалення реєстрації\u2026</string>
   <string name="ApplicationPreferencesActivity_unregistering_for_data_based_communication">Видалення реєстрації для обміну повідомленнями через Інтернет</string>
   <string name="ApplicationPreferencesActivity_error_connecting_to_server">Помилка підключення до сервера!</string>
+  <string name="ApplicationPreferencesActivity_updating_directory">Оновлення теки</string>
+  <string name="ApplicationPreferencesActivity_touch_to_change_your_default_sms_app">Торкніться, щоб змінити типову програму для SMS</string>
+  <string name="ApplicationPreferencesActivity_touch_to_make_textsecure_your_default_sms_app">Торкніться аби зробити TextSecure типовою програмою SMS</string>
   <!--AttachmentTypeSelectorAdapter-->
   <string name="AttachmentTypeSelectorAdapter_picture">Зображення</string>
   <string name="AttachmentTypeSelectorAdapter_video">Відео</string>
@@ -27,7 +30,6 @@
   <string name="ConversationItem_message_size_d_kb">Розмір повідомленя: %d KБ</string>
   <string name="ConversationItem_expires_s">Минає: %s</string>
   <string name="ConversationItem_error_sending_message">Помилка відправлення повідомлення</string>
-  <string name="ConversationItem_sending">Надсилання\u2026</string>
   <string name="ConversationItem_saving_attachment">Збереження прикріплення</string>
   <string name="ConversationItem_saving_attachment_to_sd_card">Збереження прикріплення на SD-карту\u2026</string>
   <string name="ConversationItem_save_to_sd_card">Зберегти на SD-карту?</string>
@@ -56,13 +58,11 @@
   <string name="ConversationActivity_sorry_the_selected_audio_exceeds_message_size_restrictions">Вибачте, обраний аудіо-файл більший максимального розміру повідомлення.</string>
   <string name="ConversationActivity_recipient_is_not_a_valid_sms_or_email_address_exclamation">Адреса одержувача не є ні номером телефону, ні адресою електронної пошти!</string>
   <string name="ConversationActivity_message_is_empty_exclamation">Повідомлення порожнє!</string>
-  <string name="ConversationActivity_forward_message_prefix">FWD</string>
   <string name="ConversationActivity_group_conversation_recipients">Одержувачі у конференції</string>
   <string name="ConversationActivity_group_conversation">Конференція</string>
   <string name="ConversationActivity_unnamed_group">Неназвана група</string>
   <string name="ConversationActivity_d_recipients_in_group">%d отримувачів в групі</string>
   <string name="ConversationActivity_d_recipients_in_group_singular">1 учасник</string>
-  <string name="ConversationActivity_saving_draft">Збереження чернетки\u2026</string>
   <string name="ConversationActivity_invalid_recipient">Неприпустимий отримувач!</string>
   <string name="ConversationActivity_calls_not_supported">Дзвінки не підтримуються</string>
   <string name="ConversationActivity_this_device_does_not_appear_to_support_dial_actions">Ваше пристрій мабуть не підтримує голосові дзвінки.</string>
@@ -70,7 +70,7 @@
   <string name="ConversationActivity_are_you_sure_you_want_to_leave_this_group">Ви дійсно хочете покинути цю групу?</string>
   <!--ConversationFragment-->
   <string name="ConversationFragment_message_details">Деталі повідомлення</string>
-  <string name="ConversationFragment_sender_s_transport_s_sent_received_s">Відправник: %1$s\nТип зв’язку: %2$s\nВідправлено/Отримано: %3$s</string>
+  <string name="ConversationFragment_transport_s_sent_received_s">Відправник: %1$s\nТип зв’язку: %2$s\nВідправлено/Отримано: %3$s</string>
   <string name="ConversationFragment_sender_s_transport_s_sent_s_received_s">Відправник: %1$s\nТип зв’язку: %2$s\nВідправлено: %3$s\nОтримано: %4$s</string>
   <string name="ConversationFragment_confirm_message_delete">Підтвердження вилучення повідомлення</string>
   <string name="ConversationFragment_are_you_sure_you_want_to_permanently_delete_this_message">Ви дійсно хочете назавжди вилучити це повідомлення?</string>
@@ -83,6 +83,7 @@
   <string name="ConversationListFragment_deleting_selected_threads">Видалення обраних бесід\u2026</string>
   <!--ConversationListItem-->
   <string name="ConversationListItem_key_exchange_message">Повідомлення обміну ключами\u2026</string>
+  <!--ShareActivity-->
   <!--ExportFragment-->
   <string name="ExportFragment_export_to_sd_card">Експортувати на SD-карту?</string>
   <string name="ExportFragment_this_will_export_your_encrypted_keys_settings_and_messages">Це експортує ваші шифровані ключі, налаштування та повідомлення на SD карту.</string>
@@ -98,9 +99,12 @@
   <string name="ExportFragment_exporting_keys_settings_and_messages">Експорт шифрованих ключів, налаштувань та повідомлень\u2026</string>
   <!--GroupCreateActivity-->
   <string name="GroupCreateActivity_actionbar_title">Нова група</string>
+  <string name="GroupCreateActivity_actionbar_update_title">Оновити групу</string>
   <string name="GroupCreateActivity_group_name_hint">Назва групи</string>
   <string name="GroupCreateActivity_actionbar_mms_title">Нова група MMS</string>
   <string name="GroupCreateActivity_file_io_exception">Помилка вводу-виводу. Не вдалося створити тимчасовий файл зображення.</string>
+  <string name="GroupCreateActivity_avatar_content_description">Аватар групи</string>
+  <string name="GroupCreateActivity_menu_create_title">Створити групу</string>
   <string name="GroupCreateActivity_creating_group">Створення %1$s…</string>
   <!--ImportFragment-->
   <string name="ImportFragment_import_system_sms_database">Імпортувати системну базу SMS?</string>
@@ -192,7 +196,9 @@
   <string name="SmsMessageRecord_received_corrupted_key_exchange_message">Отримано пошкоджене повідомлення обміну ключами!</string>
   <string name="SmsMessageRecord_received_key_exchange_message_for_invalid_protocol_version">Отримано повідомлення обміну ключами для неправильної версії протоколу.</string>
   <string name="SmsMessageRecord_received_message_with_unknown_identity_key_click_to_process">Отримано повідомлення з невідомим особистим ключем. Натисніть для його відображення.</string>
+  <string name="SmsMessageRecord_secure_session_ended">Захищений сеанс завершено.</string>
   <!--ThreadRecord-->
+  <string name="TheadRecord_secure_session_ended">Захищений сеанс завершено.</string>
   <!--VerifyIdentityActivity-->
   <string name="VerifyIdentityActivity_you_do_not_have_an_identity_key">У вас немає особистого ключа.</string>
   <string name="VerifyIdentityActivity_recipient_has_no_identity_key">У одержувача немає особистого ключа.</string>
@@ -278,6 +284,8 @@
   <!--contact_selection_list_activity-->
   <string name="contact_selection_group_activity__no_contacts">Контактів не знайдено.</string>
   <!--single_contact_selection_activity-->
+  <string name="single_contact_selection_group_activity__filter">Почніть друкувати ім’я для фільтрації...</string>
+  <string name="SingleContactSelectionActivity_updating_directory">Оновлення теки</string>
   <!--ContactSelectionListFragment-->
   <string name="ContactSelectionlistFragment_select_for">Вибрати для</string>
   <!--contact_selection_recent_activity-->
@@ -286,6 +294,7 @@
   <string name="conversation_activity__type_message">Наберіть повідомлення</string>
   <string name="conversation_activity__send">Надіслати</string>
   <string name="conversation_activity__remove">Вилучити</string>
+  <!--conversation_item-->
   <!--conversation_item_sent-->
   <string name="conversation_item_sent__download">Завантажити</string>
   <string name="conversation_item_sent__downloading">Завантаження</string>
@@ -306,8 +315,12 @@
   <string name="create_passphrase_activity__skip">Пропустити</string>
   <string name="create_passphrase_activity__create">Створити</string>
   <!--log_submit_activity-->
+  <string name="log_submit_activity__button_cancel">Не відсилати</string>
+  <string name="log_submit_activity__button_ok">Відіслати</string>
+  <string name="log_submit_activity__log_fetch_failed">Не вдалось захопити журнал відлагодження. Натомість ви можете скористатись ADB, щоб це зробити.</string>
   <string name="log_submit_activity__log_submit_success_title">Успішно!</string>
   <string name="log_submit_activity__copied_to_clipboard">Скопійовано до буфера обміну</string>
+  <string name="log_submit_activity__loading_logcat">Завантаження logcat…</string>
   <string name="log_submit_activity__thanks">Дякуємо за вашу допомогу!</string>
   <!--database_migration_activity-->
   <string name="database_migration_activity__would_you_like_to_import_your_existing_text_messages">Ви хочете імпортувати існуючі текстові повідомлень в зашифровану базу даних TextSecure?</string>
@@ -378,7 +391,6 @@
   <string name="registration_progress_activity__sms_verification_failed">SMS-перевірка не вдалася.</string>
   <string name="registration_progress_activity__generating_keys">Генерація ключів\u2026</string>
   <!--recipients_panel-->
-  <string name="recipients_panel__to">До</string>
   <string name="recipients_panel__add_member">Додати учасника</string>
   <!--review_identities-->
   <string name="review_identities__you_don_t_currently_have_any_identity_keys_in_your_trust_database">У вашій базі довірених співрозмовників немає жодного особистого ключа.</string>
@@ -397,6 +409,7 @@
   <string name="AndroidManifest__create_passphrase">Створити фразу-пароль</string>
   <string name="AndroidManifest__enter_passphrase">Вкажіть фразу-ключ</string>
   <string name="AndroidManifest__select_contacts">Оберіть контакти</string>
+  <string name="AndroidManifest__select_contact">Оберіть контакт</string>
   <string name="AndroidManifest__textsecure_detected">Виявлено TextSecure</string>
   <string name="AndroidManifest__public_identity_key">Публічний ключ ідентифікації</string>
   <string name="AndroidManifest__change_passphrase">Змінити фразу-ключ</string>
@@ -411,8 +424,6 @@
   <string name="arrays__contact_keys">Ключі контактів</string>
   <!--preferences.xml-->
   <string name="preferences__general">Загальні</string>
-  <string name="preferences__pref_all_sms_title">Використовувати для всіх SMS</string>
-  <string name="preferences__pref_all_mms_title">Використовувати для всіх MMS</string>
   <string name="preferences__use_textsecure_for_viewing_and_storing_all_incoming_text_messages">Використовувати TextSecure для перегляду та зберігання всіх вхідних текстових повідомлень</string>
   <string name="preferences__use_textsecure_for_viewing_and_storing_all_incoming_multimedia_messages">Використовувати TextSecure для перегляду та зберігання всіх вхідних мультимедійних повідомлень</string>
   <string name="preferences__pref_enter_sends_title">Enter надсилає</string>
@@ -440,6 +451,7 @@
   <string name="preferences__led_color">Колір LED</string>
   <string name="preferences__pref_led_blink_title">Шаблон мерехтіння LED</string>
   <string name="preferences__pref_led_blink_custom_pattern_title">Задати власний шаблон мерехтіння LED</string>
+  <string name="preferences__pref_led_blink_custom_pattern_set">Власний шаблон мерехтіння LED задано!</string>
   <string name="preferences__sound">Звук</string>
   <string name="preferences__change_notification_sound">Змінити звук сповіщення</string>
   <string name="preferences__inthread_notifications">Повідомлення при розмові</string>
@@ -484,6 +496,7 @@
   <string name="preferences__make_textsecure_the_default_sms_mms_app">Зробити TextSecure типовою програмою SMS/MMS вашої системи.</string>
   <string name="preferences__use_data_channel">Використовувати передачу даних</string>
   <string name="preferences__use_the_data_channel_for_communication_with_other_textsecure_users">Використовувати мобільний інтернет для зв’язку з іншими користувачами TextSecure</string>
+  <string name="preferences__submit_debug_log">Відіслати журнал відлагодження</string>
   <!--****************************************-->
   <!--menus-->
   <!--****************************************-->
@@ -492,6 +505,8 @@
   <string name="contact_selection_list__menu_unselect_all">Зняти вибір</string>
   <!--contact_selection-->
   <string name="contact_selection__menu_finished">Завершено</string>
+  <!--refreshing push directory from menu-->
+  <string name="push_directory__menu_refresh">Оновити список контактів</string>
   <!--conversation_button_context-->
   <string name="conversation_button_context__menu_send_unencrypted">Відправити без шифрування</string>
   <!--conversation_callable-->
@@ -512,10 +527,11 @@
   <!--conversation_secure_verified-->
   <string name="conversation_secure_verified__menu_security">Безпека</string>
   <string name="conversation_secure_verified__menu_no_identity">Немає особистого ключа</string>
-  <string name="conversation_secure_verified__menu_verify_recipient">Підтвердити одержувача</string>
+  <string name="conversation_secure_verified__menu_verify_identity">Перевірка ідентифікації</string>
   <string name="conversation_secure_verified__menu_abort_secure_session">Закінчити захищений сеанс</string>
   <!--conversation-->
   <string name="conversation__menu_add_attachment">Додати вкладення</string>
+  <string name="conversation__menu_update_group">Оновити групу</string>
   <string name="conversation__menu_leave_group">Покинути групу</string>
   <string name="conversation__menu_add_contact_info">Додати інформацію контакту</string>
   <string name="conversation__menu_delete_thread">Видалити розмову</string>

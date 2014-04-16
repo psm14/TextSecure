@@ -29,7 +29,7 @@ public class TextSecurePreferences {
   private static final String PASSPHRASE_TIMEOUT_INTERVAL_PREF = "pref_timeout_interval";
   private static final String PASSPHRASE_TIMEOUT_PREF          = "pref_timeout_passphrase";
   private static final String AUTO_KEY_EXCHANGE_PREF           = "pref_auto_complete_key_exchange";
-  private static final String SCREEN_SECURITY_PREF             = "pref_screen_security";
+  public  static final String SCREEN_SECURITY_PREF             = "pref_screen_security";
   private static final String ENTER_SENDS_PREF                 = "pref_enter_sends";
   private static final String ENTER_PRESENT_PREF               = "pref_enter_key";
   private static final String SMS_DELIVERY_REPORT_PREF         = "pref_delivery_report_sms";
@@ -50,11 +50,34 @@ public class TextSecurePreferences {
 
 
   private static final String LOCAL_REGISTRATION_ID_PREF       = "pref_local_registration_id";
-  public  static final String ALLOW_SMS_FALLBACK_PREF          = "pref_allow_sms_traffic_out";
+  private static final String ALLOW_SMS_FALLBACK_PREF          = "pref_allow_sms_traffic_out";
+  private static final String SMS_FALLBACK_ASK_PREF            = "pref_sms_fallback_ask";
+  private static final String ALLOW_SMS_NON_DATA_PREF          = "pref_sms_non_data_out";
 
   public static boolean isSmsFallbackEnabled(Context context) {
     return getBooleanPreference(context, ALLOW_SMS_FALLBACK_PREF, true);
   }
+
+  public static void setSmsFallbackEnabled(Context context, boolean enabled) {
+    setBooleanPreference(context, ALLOW_SMS_FALLBACK_PREF, enabled);
+  }
+
+  public static boolean isSmsNonDataOutEnabled(Context context) {
+    return getBooleanPreference(context, ALLOW_SMS_NON_DATA_PREF, true);
+  }
+
+  public static void setSmsNonDataOutEnabled(Context context, boolean enabled) {
+    setBooleanPreference(context, ALLOW_SMS_NON_DATA_PREF, enabled);
+  }
+
+  public static boolean isSmsFallbackAskEnabled(Context context) {
+    return getBooleanPreference(context, SMS_FALLBACK_ASK_PREF, false);
+  }
+
+  public static void setSmsFallbackAskEnabled(Context context, boolean enabled) {
+    setBooleanPreference(context, SMS_FALLBACK_ASK_PREF, enabled);
+  }
+
 
   public static int getLocalRegistrationId(Context context) {
     return getIntegerPreference(context, LOCAL_REGISTRATION_ID_PREF, 0);

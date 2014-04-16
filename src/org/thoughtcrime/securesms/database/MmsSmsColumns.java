@@ -15,16 +15,24 @@ public interface MmsSmsColumns {
     protected static final long TOTAL_MASK = 0xFFFFFFFF;
 
     // Base Types
-    protected static final long BASE_TYPE_MASK        = 0xFF;
+    protected static final long BASE_TYPE_MASK                     = 0x1F;
 
-    protected static final long BASE_INBOX_TYPE       = 20;
-    protected static final long BASE_OUTBOX_TYPE      = 21;
-    protected static final long BASE_SENDING_TYPE     = 22;
-    protected static final long BASE_SENT_TYPE        = 23;
-    protected static final long BASE_SENT_FAILED_TYPE = 24;
+    protected static final long BASE_INBOX_TYPE                    = 20;
+    protected static final long BASE_OUTBOX_TYPE                   = 21;
+    protected static final long BASE_SENDING_TYPE                  = 22;
+    protected static final long BASE_SENT_TYPE                     = 23;
+    protected static final long BASE_SENT_FAILED_TYPE              = 24;
+    protected static final long BASE_PENDING_SECURE_SMS_FALLBACK   = 25;
+    protected static final long BASE_PENDING_INSECURE_SMS_FALLBACK = 26;
 
     protected static final long[] OUTGOING_MESSAGE_TYPES = {BASE_OUTBOX_TYPE, BASE_SENT_TYPE,
-                                                            BASE_SENDING_TYPE, BASE_SENT_FAILED_TYPE};
+                                                            BASE_SENDING_TYPE, BASE_SENT_FAILED_TYPE,
+                                                            BASE_PENDING_SECURE_SMS_FALLBACK,
+                                                            BASE_PENDING_INSECURE_SMS_FALLBACK};
+
+    // Message attributes
+    protected static final long MESSAGE_ATTRIBUTE_MASK = 0xE0;
+    protected static final long MESSAGE_FORCE_SMS_BIT  = 0x40;
 
     // Key Exchange Information
     protected static final long KEY_EXCHANGE_BIT                 = 0x8000;
@@ -51,6 +59,7 @@ public interface MmsSmsColumns {
     protected static final long ENCRYPTION_REMOTE_BIT            = 0x20000000;
     protected static final long ENCRYPTION_REMOTE_FAILED_BIT     = 0x10000000;
     protected static final long ENCRYPTION_REMOTE_NO_SESSION_BIT = 0x08000000;
+    protected static final long ENCRYPTION_REMOTE_DUPLICATE_BIT  = 0x04000000;
 
     public static boolean isFailedMessageType(long type) {
       return (type & BASE_TYPE_MASK) == BASE_SENT_FAILED_TYPE;
@@ -65,10 +74,27 @@ public interface MmsSmsColumns {
       return false;
     }
 
+    public static boolean isForcedSms(long type) {
+      return (type & MESSAGE_FORCE_SMS_BIT) != 0;
+    }
+
     public static boolean isPendingMessageType(long type) {
       return
           (type & BASE_TYPE_MASK) == BASE_OUTBOX_TYPE ||
               (type & BASE_TYPE_MASK) == BASE_SENDING_TYPE;
+    }
+
+    public static boolean isPendingSmsFallbackType(long type) {
+      return (type & BASE_TYPE_MASK) == BASE_PENDING_INSECURE_SMS_FALLBACK ||
+             (type & BASE_TYPE_MASK) == BASE_PENDING_SECURE_SMS_FALLBACK;
+    }
+
+    public static boolean isPendingSecureSmsFallbackType(long type) {
+      return (type & BASE_TYPE_MASK) == BASE_PENDING_SECURE_SMS_FALLBACK;
+    }
+
+    public static boolean isPendingInsecureSmsFallbackType(long type) {
+      return (type & BASE_TYPE_MASK) == BASE_PENDING_INSECURE_SMS_FALLBACK;
     }
 
     public static boolean isInboxType(long type) {
@@ -129,6 +155,10 @@ public interface MmsSmsColumns {
 
     public static boolean isFailedDecryptType(long type) {
       return (type & ENCRYPTION_REMOTE_FAILED_BIT) != 0;
+    }
+
+    public static boolean isDuplicateMessageType(long type) {
+      return (type & ENCRYPTION_REMOTE_DUPLICATE_BIT) != 0;
     }
 
     public static boolean isDecryptInProgressType(long type) {
